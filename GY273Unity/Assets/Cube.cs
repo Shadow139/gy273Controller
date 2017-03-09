@@ -11,6 +11,8 @@ public class Cube : MonoBehaviour {
     private Text yTxt;
     [SerializeField]
     private Text zTxt;
+    [SerializeField]
+    private GameObject compass;
 
     SerialPort sp = new SerialPort("COM4", 9600);
 
@@ -32,6 +34,16 @@ public class Cube : MonoBehaviour {
                 string s = sp.ReadLine();
                 //Debug.Log(s);
 
+                if (s.Contains("H"))
+                {
+                    Debug.Log(s);
+
+                    string compRot = s.Split(" "[0])[1];
+                    float compassRotation = float.Parse(compRot);
+
+                    compass.transform.rotation = Quaternion.Euler(0f,compassRotation,0f);
+                    return;
+                }
 
                 string xRot = s.Split(" "[0])[0];
                 string yRot = s.Split(" "[0])[1];

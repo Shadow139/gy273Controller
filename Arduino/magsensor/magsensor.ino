@@ -92,7 +92,7 @@ void loop(void)
   // Convert radians to degrees for readability.
   float headingDegrees = heading * 180/M_PI; 
   
-  //Serial.print("Heading (degrees): "); Serial.println(headingDegrees);
+  Serial.print("H "); Serial.println(headingDegrees);
   
   delay(50);
 }
