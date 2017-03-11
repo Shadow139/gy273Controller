@@ -57,8 +57,11 @@ public class Cube : MonoBehaviour {
 
     SerialPort sp = new SerialPort("COM5", 115200);
 
-	// Use this for initialization
-	void Start () {
+    Vector3 accelerationOld;
+    Vector3 accelerationDelta;
+
+    // Use this for initialization
+    void Start () {
         sp.Open();
         sp.ReadTimeout = 1;
 	}
@@ -76,12 +79,10 @@ public class Cube : MonoBehaviour {
             try
             {
                 string s = sp.ReadLine();
-                Debug.Log(s);
+                //Debug.Log(s);
 
                 if (s.Contains("H"))
                 {
-                    Debug.Log(s);
-
                     string compRot = s.Split(" "[0])[1];
                     float compassRotation = float.Parse(compRot);
 
@@ -137,6 +138,11 @@ public class Cube : MonoBehaviour {
                     eventAcc.x = -float.Parse(xAcc);
                     eventAcc.y = float.Parse(yAcc);
                     eventAcc.z = float.Parse(zAcc);
+                    accelerationDelta = accelerationOld - eventAcc;
+                    moveObject(accelerationDelta);
+
+                    accelerationOld = eventAcc;
+                    Debug.Log(accelerationDelta);
                 }
 
                 if (s.Contains("lineAcc"))
@@ -150,8 +156,10 @@ public class Cube : MonoBehaviour {
                     zLineTxt.text = "ZAccLine: " + zAcc;
 
                     lineAcc.x = -float.Parse(xAcc);
-                    lineAcc.y = float.Parse(yAcc);
-                    lineAcc.z = float.Parse(zAcc);
+                    lineAcc.y = float.Parse(zAcc);
+                    lineAcc.z = float.Parse(yAcc);
+
+                    //moveObject(lineAcc);
                 }
 
                 if (s.Contains("Joy"))
@@ -169,6 +177,7 @@ public class Cube : MonoBehaviour {
                     if (btn == 0)
                     {
                         joystickImg.color = Color.green;
+                        transform.position = Vector3.zero;
                     }
                     else
                     {
@@ -209,4 +218,10 @@ public class Cube : MonoBehaviour {
             //transform.Rotate(rotation);
         }
     }
+
+    void moveObject(Vector3 movement)
+    {
+        transform.Translate(movement);
+    }
+
 }
