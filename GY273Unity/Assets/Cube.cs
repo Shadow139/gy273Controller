@@ -55,7 +55,7 @@ public class Cube : MonoBehaviour {
     [SerializeField]
     private Image joystockBG;
 
-    SerialPort sp = new SerialPort("COM5", 115200);
+    SerialPort sp = new SerialPort("COM4", 115200);
 
     Vector3 accelerationOld;
     Vector3 accelerationDelta;
@@ -65,9 +65,10 @@ public class Cube : MonoBehaviour {
         sp.Open();
         sp.ReadTimeout = 1;
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+
+    // Update is called once per frame
+    void Update () {
 
         if (sp.IsOpen)
         {
@@ -81,7 +82,41 @@ public class Cube : MonoBehaviour {
                 string s = sp.ReadLine();
                 //Debug.Log(s);
 
-                if (s.Contains("H"))
+                string[] split = s.Split(' ');
+
+                if (split[0].Length > 0)
+                {
+                    switch (split[0])
+                    {
+                        case "Quaternion":
+                            float z, y, x, w;
+                            x   = float.Parse(split[1]);
+                            y = float.Parse(split[2]);
+                            z  = float.Parse(split[3]);
+                            w = float.Parse(split[4]);
+
+                            transform.rotation = new Quaternion(y, -z, -x, w);
+                            
+                            break;
+
+                        case "eventAcc":
+                            break;
+
+                        case "lineAcc":
+                            break;
+
+                        case "Joy":
+                            break;
+
+                        case "CALIBRATION":
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+
+                /*if (s.Contains("H"))
                 {
                     string compRot = s.Split(" "[0])[1];
                     float compassRotation = float.Parse(compRot);
@@ -139,7 +174,7 @@ public class Cube : MonoBehaviour {
                     eventAcc.y = float.Parse(yAcc);
                     eventAcc.z = float.Parse(zAcc);
                     accelerationDelta = accelerationOld - eventAcc;
-                    moveObject(accelerationDelta);
+                    //moveObject(accelerationDelta);
 
                     accelerationOld = eventAcc;
                     Debug.Log(accelerationDelta);
@@ -194,6 +229,7 @@ public class Cube : MonoBehaviour {
                     joystickImg.rectTransform.anchoredPosition = new Vector3(pos.y * joystockBG.rectTransform.sizeDelta.y,
                         pos.x * joystockBG.rectTransform.sizeDelta.x);
                 }
+                */
 
             }
             catch (System.Exception)
@@ -201,7 +237,8 @@ public class Cube : MonoBehaviour {
 
             }
 
-            rotateObject(rot);
+            //rotateObject(rot);
+            
         }
     }
     void readEuler()

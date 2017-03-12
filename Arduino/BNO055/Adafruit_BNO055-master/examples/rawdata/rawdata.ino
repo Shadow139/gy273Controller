@@ -114,13 +114,13 @@ void loop(void)
   // Quaternion data
   imu::Quaternion quat = bno.getQuat();
   Serial.print("Quaternion ");
-  Serial.print(quat.w(), 4);
+  Serial.print(quat.x(), 4);
   Serial.print(" ");
   Serial.print(quat.y(), 4);
   Serial.print(" ");
-  Serial.print(quat.x(), 4);
+  Serial.print(quat.z(), 4);
   Serial.print(" ");
-  Serial.println(quat.z(), 4);  
+  Serial.println(quat.w(), 4);  
   
   Serial.print("eventAcc ");
   Serial.print((float)event.acceleration.x);
