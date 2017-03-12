@@ -55,66 +55,135 @@ public class Cube : MonoBehaviour {
     [SerializeField]
     private Image joystockBG;
 
-    SerialPort sp = new SerialPort("COM4", 115200);
+    public string PortName = "";
+    public int Baud = 38400;
+    public int RebootDelay = 3;
+
+    //SerialPort sp = new SerialPort("COM1", 38400);
+    SerialPort sp;
 
     Vector3 accelerationOld;
     Vector3 accelerationDelta;
 
+    float prev = 0;
+
     // Use this for initialization
     void Start () {
+        if (PortName == null || PortName.Length == 0 && guessPortName().Length > 0)
+        {
+            PortName = guessPortName();
+        }
+        Debug.Log(PortName);
+        sp = new SerialPort(PortName, Baud);
+
         sp.Open();
         sp.ReadTimeout = 1;
 	}
 
 
     // Update is called once per frame
-    void Update () {
+    void Update() {
 
-        if (sp.IsOpen)
-        {
-            Vector3 rot = new Vector3();
-            Vector3 eventAcc = new Vector3();
-            Vector3 lineAcc = new Vector3();
-            Vector4 quat = new Vector4();
-            
+        if (sp.IsOpen && sp != null)
+        {   
             try
             {
-                string s = sp.ReadLine();
-                //Debug.Log(s);
+                string line = sp.ReadLine();
+                
+                //string[] dataChunks = line.Split('|');
 
-                string[] split = s.Split(' ');
+                //foreach (var s in dataChunks)
+                //{
 
-                if (split[0].Length > 0)
-                {
-                    switch (split[0])
+                    string[] split = line.Split(' ');
+
+                    if (split[0].Length > 0)
                     {
-                        case "Quaternion":
-                            float z, y, x, w;
-                            x   = float.Parse(split[1]);
-                            y = float.Parse(split[2]);
-                            z  = float.Parse(split[3]);
-                            w = float.Parse(split[4]);
 
-                            transform.rotation = new Quaternion(y, -z, -x, w);
-                            
-                            break;
+                        float x, y, z, w;
+                        int a, b, c, d;
+                        switch (split[0])
+                        {
+                            case "Q":
+                                x = float.Parse(split[1]);
+                                y = float.Parse(split[2]);
+                                z = float.Parse(split[3]);
+                                w = float.Parse(split[4]);
 
-                        case "eventAcc":
-                            break;
+                                transform.rotation = new Quaternion(y, -z, -x, w);
 
-                        case "lineAcc":
-                            break;
+                                break;
 
-                        case "Joy":
-                            break;
+                            case "A":
+                                x = float.Parse(split[1]);
+                                y = float.Parse(split[2]);
+                                z = float.Parse(split[3]);
 
-                        case "CALIBRATION":
-                            break;
+                                xEventTxt.text = "XAccEvent: " + x;
+                                yEventTxt.text = "YAccEvent: " + y;
+                                zEventTxt.text = "ZAccEvent: " + z;
 
-                        default:
-                            break;
+
+                                break;
+
+                            case "L":
+                                x = float.Parse(split[1]);
+                                y = float.Parse(split[2]);
+                                z = float.Parse(split[3]);
+
+
+
+                                xLineTxt.text = "XAccLine: " + x;
+                                yLineTxt.text = "YAccLine: " + y;
+                                zLineTxt.text = "ZAccLine: " + z;
+
+
+                                break;
+
+                            case "J":
+                                a = int.Parse(split[1]);
+                                b = int.Parse(split[2]);
+                                c = int.Parse(split[3]);
+
+                                joyBtnTxt.text = "JoystickBtn: " + a;
+                                joyXTxt.text = "JoystickX: " + b;
+                                joyYTxt.text = "JoystickY: " + c;
+
+                                if (a == 0)
+                                {
+                                    joystickImg.color = Color.green;
+                                    transform.position = Vector3.zero;
+                                }
+                                else
+                                {
+                                    joystickImg.color = Color.red;
+                                }
+
+                                Vector2 pos;
+                                pos.x = b;
+                                pos.y = c;
+
+                                pos.x = (pos.x - 512) / 1024.0f;
+                                pos.y = (pos.y - 512) / 1024.0f;
+
+                                joystickImg.rectTransform.anchoredPosition = new Vector3(pos.y * joystockBG.rectTransform.sizeDelta.y,
+                                    pos.x * joystockBG.rectTransform.sizeDelta.x);
+
+                                break;
+
+                            case "C":
+                                a = int.Parse(split[1]);
+                                b = int.Parse(split[2]);
+                                c = int.Parse(split[3]);
+                                d = int.Parse(split[4]);
+                                break;
+
+                            default:
+                                break;
+                        }
                     }
-                }
+                //}
+                
 
                 /*if (s.Contains("H"))
                 {
@@ -232,9 +301,9 @@ public class Cube : MonoBehaviour {
                 */
 
             }
-            catch (System.Exception)
+            catch (System.Exception e)
             {
-
+                //bug.Log("FAIL");
             }
 
             //rotateObject(rot);
@@ -261,4 +330,57 @@ public class Cube : MonoBehaviour {
         transform.Translate(movement);
     }
 
+    public static string guessPortName()
+    {
+        switch (Application.platform)
+        {
+            case RuntimePlatform.OSXPlayer:
+            case RuntimePlatform.OSXEditor:
+            case RuntimePlatform.OSXDashboardPlayer:
+            case RuntimePlatform.LinuxPlayer:
+                return guessPortNameUnix();
+
+            default:
+                return guessPortNameWindows();
+        }
+
+        //return guessPortNameUnix();
+    }
+
+    public static string guessPortNameWindows()
+    {
+        var devices = System.IO.Ports.SerialPort.GetPortNames();
+
+        if (devices.Length == 0) // 
+        {
+            return "COM3"; // probably right 50% of the time		
+        }
+        else if(devices.Length >= 2)
+        {
+            return devices[1];
+        }
+        else
+            return devices[0];
+    }
+
+    public static string guessPortNameUnix()
+    {
+        var devices = System.IO.Ports.SerialPort.GetPortNames();
+
+        if (devices.Length == 0) // try manual enumeration
+        {
+            devices = System.IO.Directory.GetFiles("/dev/");
+        }
+        string dev = ""; ;
+        foreach (var d in devices)
+        {
+            if (d.StartsWith("/dev/tty.usb") || d.StartsWith("/dev/ttyUSB"))
+            {
+                dev = d;
+                Debug.Log("Guessing that arduino is device " + dev);
+                break;
+            }
+        }
+        return dev;
+    }
 }

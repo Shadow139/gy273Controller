@@ -46,7 +46,7 @@ void setup(void)
   //pinMode(GPin, OUTPUT);
   //pinMode(BPin, OUTPUT);
   
-  Serial.begin(115200);
+  Serial.begin(38400);
   //Serial.println("Orientation Sensor Raw Data Test"); Serial.println("");
 
   /* Initialise the sensor */
@@ -96,24 +96,18 @@ void loop(void)
   //digitalWrite(BPin,LOW);
 
 
-  Serial.print("Joy ");
+  Serial.print("J ");
   Serial.print(digitalRead(JButtonPin)); 
   Serial.print(" ");
   Serial.print(analogRead(XPin)); 
   Serial.print(" ");
   Serial.println(analogRead(YPin));
+  //Serial.print("|");
   
-  /* Display the floating point data */
-  Serial.print("Inertial ");
-  Serial.print(euler.x());
-  Serial.print(" ");
-  Serial.print(euler.y());
-  Serial.print(" ");
-  Serial.println(euler.z());
   
   // Quaternion data
   imu::Quaternion quat = bno.getQuat();
-  Serial.print("Quaternion ");
+  Serial.print("Q ");
   Serial.print(quat.x(), 4);
   Serial.print(" ");
   Serial.print(quat.y(), 4);
@@ -121,35 +115,36 @@ void loop(void)
   Serial.print(quat.z(), 4);
   Serial.print(" ");
   Serial.println(quat.w(), 4);  
+  //Serial.print("|");
   
-  Serial.print("eventAcc ");
+  Serial.print("A ");
   Serial.print((float)event.acceleration.x);
   Serial.print(" ");
   Serial.print((float)event.acceleration.y);
   Serial.print(" ");
   Serial.println((float)event.acceleration.z);
+  //Serial.print("|");
 
   imu::Vector<3> lineacc = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
-  Serial.print("lineAcc ");
+  Serial.print("L ");
   Serial.print(lineacc.x());
   Serial.print(" ");
   Serial.print(lineacc.y());
   Serial.print(" ");
   Serial.println(lineacc.z());
+  //Serial.print("|");
 
   /* Display calibration status for each sensor. */
   uint8_t system, gyro, accel, mag = 0;
   bno.getCalibration(&system, &gyro, &accel, &mag);
-  Serial.print("CALIBRATION: Sys=");
+  Serial.print("C ");
   Serial.print(system, DEC);
-  Serial.print(" Gyro=");
+  Serial.print(" ");
   Serial.print(gyro, DEC);
-  Serial.print(" Accel=");
+  Serial.print(" ");
   Serial.print(accel, DEC);
-  Serial.print(" Mag=");
+  Serial.print(" ");
   Serial.println(mag, DEC);
-
   
-
   delay(BNO055_SAMPLERATE_DELAY_MS);
 }
