@@ -47,6 +47,16 @@ public class Cube : MonoBehaviour {
     [SerializeField]
     private Text joyYTxt;
 
+    //Textfields for Calibration
+    [SerializeField]
+    private Text magTxt;
+    [SerializeField]
+    private Text accTxt;
+    [SerializeField]
+    private Text gyrTxt;
+    [SerializeField]
+    private Text sysTxt;
+
     [SerializeField]
     private GameObject compass;
 
@@ -109,6 +119,12 @@ public class Cube : MonoBehaviour {
                                 y = float.Parse(split[2]);
                                 z = float.Parse(split[3]);
                                 w = float.Parse(split[4]);
+
+
+                                xQuatTxt.text = "Xq: " + x;
+                                yQuatTxt.text = "Yq: " + y;
+                                zQuatTxt.text = "Zq: " + z;
+                                wQuatTxt.text = "Wq: " + w;
 
                                 transform.rotation = new Quaternion(y, -z, -x, w);
 
@@ -176,6 +192,11 @@ public class Cube : MonoBehaviour {
                                 b = int.Parse(split[2]);
                                 c = int.Parse(split[3]);
                                 d = int.Parse(split[4]);
+
+                                magTxt.text = "mag: " + a;
+                                accTxt.text = "acc: " + c;
+                                gyrTxt.text = "gyr: " + d;
+                                sysTxt.text = "sys: " + a;
                                 break;
 
                             default:
@@ -348,7 +369,7 @@ public class Cube : MonoBehaviour {
     }
 
     public static string guessPortNameWindows()
-    {
+    {        
         var devices = System.IO.Ports.SerialPort.GetPortNames();
 
         if (devices.Length == 0) // 
